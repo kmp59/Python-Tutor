@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="css/style.css">
+    </head>
+    <body id="fbody">
+        <div class="split left">
+          <div class="centered">
+            <img id="size" alt="python Logo" src="5848152fcef1014c0b5e4967.png">
+            <h1>Python</h1>
+            <h3>Developer's Portal</h3>
+          </div>
+        </div>
+        <div class="split right">
+          <div class="centered">
+            <div id = "form">
+                <form>
+                    
+                    <h2>New Jersey Institute of Technology</h2>
+                    <center><div id="whitebg"> 
+                    <center><img src ="njit_logo.png" alt="njitlogo" width=105 heigth=105></center><br>
+                    <center><input id="UCID" type="text" placeholder="UCID" autocomplete ="off"> <br><br></center>
+                    <center><input id="password" type="password" placeholder="Password"><br><br></center>
+                    <center><input id="button" type="button" value="Submit" onclick="getAnswer()"></center>
+                        </div></center>
+                </form><br><br>
+                <center><span id="text"></span></center>
+                <p><span id="njitRes" style="color:blue"></span></p>
+            </div>
+          </div>
+        </div>
+    </body>
+    <script>
+        function getAnswer(){
+            /********Get User Information from HTML *********/
+            var user = document.getElementById('UCID').value;
+            var pass = document.getElementById('password').value;
+            if(user.length == 0 | pass.length == 0 ){
+                document.getElementById('text').innerHTML = "Please enter UCID and password to log in.";
+                return false;
+            } else {
+              document.getElementById('text').innerHTML = "";
+            }
+            var params = "UCID="+user+"&password="+pass;
+
+            /************Ajax POST request to server************/
+            var xmlhttp = new XMLHttpRequest();
+              xmlhttp.open("POST", "curlpost.php", true);
+              xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+              xmlhttp.onreadystatechange = function() {
+                  if (this.readyState == 4 && this.status == 200) {
+                    var resp = xmlhttp.responseText;                                      // Captures server response
+                    var lsucc=resp.indexOf("true");                                       // Find relevant sunstrings in response
+                    var role=resp.indexOf("teacher");                                     // Find relevant sunstrings in response
+                    if(lsucc > -1){                                                       // Displays server response to client
+                      (function (global){
+                            global.localStorage.setItem('UCID',user);
+                            }(window));
+                      if(role > -1){
+                          window.location.pathname = '/~hp342/FrontEnd/instructor.html';  //redirects to teacher view
+                      }else{
+                          window.location.pathname = '/~hp342/FrontEnd/student.html';    //redirects to student view
+                      }
+                    } else {
+                      document.getElementById('njitRes').innerHTML = "UCID/Password incorrect!";
+                    }
+                  }
+              };
+              xmlhttp.send(params);                                                        // Executes request to server
+          }
+    </script>
+</html>

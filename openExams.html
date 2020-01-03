@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html id="in">
+<head>
+        <title> Py-Intstitute </title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="css/style.css">
+    </head>
+<body>
+<p id="msg"></p>
+<ul id="navbar">
+          <li><a href="/~hp342/FrontEnd/student.html">Back to Main Menu</a></li>
+          <li style="float:right"><a href="/~hp342/FrontEnd/login.html" onclick="logOff()">Log Out!</a></li></ul>
+<h2><center>Select Exam</center></h2>
+<p id="text"></p>
+</body>
+<script>
+window.onload = function() {
+  if (localStorage.getItem('UCID')) {
+    document.getElementById('msg').innerHTML = "Hello " + localStorage.getItem('UCID')+ "!"; 
+  }
+  
+  var params="struct=viewExams";
+  var xmlhttp = new XMLHttpRequest();
+  xmlhttp.open("POST","curlpost.php", true);
+  xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+  xmlhttp.onreadystatechange = function() {
+  if (this.readyState == 4 && this.status == 200) {
+    var resp = JSON.parse(this.responseText);
+    var examLinks = "";
+    for(var i=0; i<resp.length; i++){
+      examLinks += (i+1)+')  '+'<a href="/~hp342/FrontEnd/exam.html" onclick="setExam(this)" id='+resp[i].examName+' >'+resp[i].examName+'</a><br>';
+    }
+    document.getElementById('text').innerHTML = examLinks;
+  }
+  };
+  xmlhttp.send(params);
+}
+
+function setExam(a){
+  (function (global){
+    global.localStorage.setItem('examName',a.id);
+  }(window));
+}
+</script>
+</html>

@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en" id="in">
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="css/style1.css">
+        <title>Py-Institute</title>
+    </head>
+    <style>
+      #addTT
+      {
+        width:96%;
+        margin:auto;
+      }
+    </style>
+<body>
+    <p id="msg" class="msg"></p>
+        <ul id="navbar">
+              <li><a class="active" href="/~hp342/FrontEnd/addQuestion.html">Add Question</a></li>
+              <li><a href="/~hp342/FrontEnd/newExam.html">Create Exam</a></li>
+              <li><a href="/~hp342/FrontEnd/grades.html">Grade Exam</a></li>
+              <li id="lout"><a href="/~hp342/FrontEnd/login.html" onclick="logOff()">Log Out!</a>
+            </ul>
+<div class=" panes-container">
+  <div class="left-pane" id="left-pane" style="min-width:40%;">
+        <form id="left">
+            <h2 style="font-variant:petite-caps">Add New Question</h2><hr>
+            <h4>New Question Details</h4>
+            <label for="difficulty">Difficulty:</label>
+            <select id="difficulty" required>
+              <option value="" disabled selected>Select</option>
+              <option value="Easy" >Easy</option>Í
+              <option value="Medium">Medium</option>
+              <option value="Hard">Hard</option></select><br><br>
+            <label for="category">Category:</label>
+            <select id="category" required>
+              <option value="" disabled selected>Select</option><br>
+              <option value="">None</option>
+              <option value="Conditional">Conditional</option>
+              <option value="Files">Files</option>
+              <option value="General">General</option>
+              <option value="Loops">Loops</option>
+              <option value="Return">Return</option>
+              </select><br><br>
+            <label for="qText">Question: </label><br>
+            <textarea id="qText" required></textarea><br><br>
+            <label>constraints</label>
+            <select id="category" required>
+              <option name="constraints" class="constraints" value="">None</option>
+              <option name="constraints" class="constraints" value="For">For Loop</option>
+              <option name="constraints" class="constraints" value="While">While</option>
+              <option name="constraints" class="constraints" value="Recursion">Recursion</option>
+              </select><br><br><hr>
+            <h4>New Question Test Case Details</h4>
+            <label for="funcName">Function Name:</label><input id="funcName" class="smltx"type="text" required /><br> <br>
+            <label for="paramName">Parameter Names:</label><input id="paramName" class="smltx" type="text" required /><hr>
+            <h4>Test Cases</h4>
+            <div id="addTT">
+             
+                  <input class="smltx" name="parameters" placeholder="Parameters" type="text" />
+                  <input class="smltx" name="testcase" placeholder="Output" type="text" />
+              
+                  <input type="button" value="+" onclick="AddTestCase()"/>
+                  <br>
+            </div>
+            <hr>
+            <center><input id="btn" type="button" value="Add Question" onclick="AddQuestion()"/></center>
+      </form>
+    </div>
+  <div class="panes-separator" id="panes-separator"></div>
+    <div class="right-pane" id="right-pane" style="min-width:60%;">
+    <div id = "right">
+     <h2 style="font-variant:petite-caps">Question Bank</h2>
+     <center><label for="search">Filter by:</label>
+     <select id="cat">
+     <option value="" disabled selected>Category</option>
+     <option value="">None</option>
+     <option value="Conditional">Conditional</option>
+     <option value="Files">Files</option>
+     <option value="General">General</option>
+     <option value="Loops">Loops</option>
+     <option value="Return">Return</option>
+    </select>
+    <select id="diff">
+     <option value="" disabled selected>Difficulty</option>
+     <option value="">None</option>
+     <option>Easy</option>
+     <option>Medium</option>
+     <option>Hard</option>
+    </select>
+    <select id="con">
+     <option value="" disabled selected>Type</option>
+     <option value="">None</option>
+     <option>For</option>
+     <option>Recursion</option>
+     <option>While</option>
+    </select>
+     <br><br><input id="filter" />
+        <input type="button" value="Search" onclick="FilterQuestions()" /></center>
+        <hr>
+     <table id="questions">
+     </table>
+  </div>  
+</div>
+</div>
+</body>
+<script>
+window.onload = function() { 
+  if (localStorage.getItem('UCID')) {
+    document.getElementById('msg').innerHTML = "Hello " + localStorage.getItem('UCID')+ "!"; 
+ }
+ var tableData="<th>ID</th><th>Questions</th><th>Category</th><th>Difficulty</th>";
+  var params = "struct=showAll";
+  var xmlhttp = new XMLHttpRequest();
+  xmlhttp.open("POST","curlpost.php", true);
+  xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+  xmlhttp.onreadystatechange = function() {
+    if (this.readyState == 4 && this.status == 200) {
+      resp = JSON.parse(this.responseText);
+      for (var i=0; i<resp.length; i++) {
+        var data= resp[i];
+        tableData+='<tr><td>'+data.questionID+'</td><td>'+data.questionText+'</td><td>'+data.questionCategory+'</td><td>'+data.questionDifficulty+'</td></tr>';
+      }
+       document.getElementById('questions').innerHTML = tableData;
+    }
+  };
+  xmlhttp.send(params);
+ 
+}
+
+function AddTestCase(){
+  var paramIn = document.createElement('input');
+  paramIn.type = 'text';
+  paramIn.name = 'parameters';
+  paramIn.placeholder = "Parameters";
+  var resIn = document.createElement('input')
+  resIn.type = 'text';
+  resIn.placeholder = "Output";
+  resIn.name = 'testcase';
+  resIn.style = 'margin-left:4px';
+  document.getElementById('addTT').appendChild(paramIn);
+  document.getElementById('addTT').appendChild(resIn);
+  var x = document.createElement('br');
+  paramIn.classList.add("smltx");
+  resIn.classList.add("smltx");
+  paramIn.style.margin = "10px 5px 0px 10px ";
+
+  resIn.style.margin = "10px 0px 0px 0px";
+  document.getElementById('addTT').append(x);
+}
+
+function GetTildeDelimitedValues(selector){
+    var textboxes = document.querySelectorAll(selector);
+    var delValues="";
+    for(var i=0; i<textboxes.length; i++){
+      if(i<textboxes.length-1){
+        delValues+= textboxes[i].value+'~';
+      }
+      else{
+        delValues+= textboxes[i].value;
+      }
+    }
+    return delValues;
+}
+
+function FilterQuestions(){
+  var key = document.getElementById('filter').value
+  var cat = document.getElementById('cat').value
+  var diff = document.getElementById('diff').value
+  var con = document.getElementById('con').value
+  
+  var params="cat="+cat+"&diff="+diff+"&con="+con+"&key="+key+"&struct=filter";
+  var tableData="<th>ID</th><th>Questions</th><th>Category</th><th>Difficulty</th>";
+  
+  var xmlhttp = new XMLHttpRequest();
+  xmlhttp.open("POST","curlpost.php", true);
+  xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+  xmlhttp.onreadystatechange = function() {
+    if (this.readyState == 4 && this.status == 200) {
+      resp = JSON.parse(this.responseText);
+      for (var i=0; i<resp.length; i++) {
+        var data= resp[i];
+        tableData+='<tr><td>'+data.id+'</td><td>'+data.text+'</td><td>'+data.category+'</td><td>'+data.difficulty+'</td></tr>';
+      }
+       document.getElementById('questions').innerHTML = tableData;
+    }
+    else{
+       document.getElementById('questions').innerHTML = "No questions match specified criteria.";
+    }
+  };
+  xmlhttp.send(params);
+}
+
+function AddQuestion(){
+  //capture user input
+  var nQ = document.getElementById('qText').value;
+  var newQ = nQ.replace(/\+/g,"%2B");;
+  var difficulty = document.getElementById('difficulty').value;
+  var category = document.getElementById('category').value;
+  var funcName = document.getElementById('funcName').value;
+  var pm = GetTildeDelimitedValues('input[name=parameters]');
+  var parameters = pm.replace(/\+/g,"%2B");
+  var testcase = GetTildeDelimitedValues('input[name=testcase]');
+  var parameterVal = document.getElementById('paramName').value;
+  var constraints = "";
+  if(document.querySelector('.constraints:checked') != null){
+    constraints = document.querySelector('.constraints:checked').value;
+  }
+  
+  var params="newQ="+newQ+"&difficulty="+difficulty+"&category="+category+"&funcName="+funcName+"&parameters="+parameters+"&testcase="+testcase+"&parameterVal="+parameterVal+"&constraints="+constraints+"&struct=addQuestion";
+  
+  var xmlhttp = new XMLHttpRequest();
+  xmlhttp.open("POST","curlpost.php", true);
+  xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+  xmlhttp.onreadystatechange = function() {
+  if (this.readyState == 4 && this.status == 200) {
+    //alert('Question added to test bank!');
+    //var resp = xmlhttp.responseText
+    //document.getElementById('text').innerHTML = resp;
+    window.location.href = '/~hp342/FrontEnd/addQuestion.html';
+  }
+  };
+  xmlhttp.send(params);
+  //document.getElementById('text').innerHTML = params;
+  
+}
+</script>
+</html>

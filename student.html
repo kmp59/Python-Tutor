@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html id="in">
+    <head>
+        <title> Py-Intstitute </title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="css/style.css">
+    </head>
+    <body>    
+        <ul id="navbar">
+          <li><a href="/~hp342/FrontEnd/openExams.html">Open Exams</a></li>
+          <li><a href="/~hp342/FrontEnd/studentGrades.html">View Grade</a></li>
+<!--          <li id="lout"><a>Instructor</a></li>-->
+          <li id="lout"><a href="/~hp342/FrontEnd/login.html" onclick="logOff()">Log Out!</a>
+        </ul>
+    <h1><p id="ins">Welcome, Student!<p></h1>
+        <div id="pad"></div>
+    </body>
+    <script>
+      window.onload = function() { 
+  if (localStorage.getItem('UCID')) {
+    document.getElementById('msg').innerHTML = "Welcome " + localStorage.getItem('UCID')+ "!"; 
+ }
+};
+
+function logOff(){
+  localStorage.removeItem('UCID');
+
+}
+</script>
+</html>

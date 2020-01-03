@@ -1,0 +1,167 @@
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="css/style1.css">
+</head>
+<body>
+
+    <p id="msg"></p><div style="padding-top: 300px;"></div>
+    <div id="left">
+<h2 style="font-variant:petite-caps">Confirm Grade</h2><hr style="width: 30% !important;">
+<ul id="navbar">
+              <li><a href="/~hp342/FrontEnd/addQuestion.html">Add Question</a></li>
+              <li><a href="/~hp342/FrontEnd/newExam.html">Create Exam</a></li>
+              <li><a class="active" href="/~hp342/FrontEnd/grades.html">Grade Exam</a></li>
+              <li id="lout"><a href="/~hp342/FrontEnd/login.html" onclick="logOff()">Log Out!</a>
+            </ul>
+<p id="test"></p>
+<center>
+<table id="json"></table></center><br>
+
+<center><input id="vComments" type="button" value="Adjust Grade" onclick="getMetrics()" /></center>
+    <input id="rGrade" type="button" value="Release Grade" onclick="releaseGrade()" style="display:none"/></div>
+    </body>
+<script>
+window.onload = function() { 
+  sUsers="";
+  qIds="";
+  if (localStorage.getItem('UCID')) {
+    document.getElementById('msg').innerHTML = "Hello " + localStorage.getItem('UCID')+ "!"; 
+ }
+ 
+  var params="struct=viewStudents";
+  var tableData="<th>UCID</th><th>Grade</th>";
+  var xmlhttp = new XMLHttpRequest();
+  xmlhttp.open("POST","curlpost.php", true);
+  xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+  xmlhttp.onreadystatechange = function() {
+    if (this.readyState == 4 && this.status == 200) {
+      var json = JSON.parse(this.responseText);
+      for (var i=0; i<json.length; i++) {
+        var data= json[i];
+        tableData+='<tr><td><input type="checkbox" name="cb" value='+data.UCID+' />'+data.UCID+'<td>'+data.grade+'</td></tr>';
+      }
+       //document.getElementById('test').innerHTML = resp;
+        document.getElementById('json').innerHTML = tableData;
+    }
+  };
+  xmlhttp.send(params);
+};
+
+function getMetrics(){
+  var tableData="<th></th><th>Question</th><th>Answer</th><th>Comments</th><th>Max Points</th><th>Points Received</th><th>Adjust Grade</th>";
+  sUsers = GetSelectedStudents();
+  var params="struct=getMetrics&UCID="+sUsers;
+    var xmlhttp = new XMLHttpRequest();
+  xmlhttp.open("POST","curlpost.php", true);
+  xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+  xmlhttp.onreadystatechange = function() {
+    if (this.readyState == 4 && this.status == 200) {
+     var jsonData = JSON.parse(this.responseText);
+     for (var i=0; i<jsonData.length; i++) {
+        var data= jsonData[i];
+        document.getElementById('vComments').style.display = "none";
+        document.getElementById('rGrade').style.display = "block";
+		
+		var rzns = data.reasons.split('~');
+		var parsedReasons = "<ol>"
+		for(var j=0; j<rzns.length; j++){
+			if(rzns[j].includes('incorrect')){
+				parsedReasons += "<li id ="+j+" style='color:red'>"+rzns[j]+"</li></br>";
+			}
+			else if(rzns[j].includes('correct')){
+				parsedReasons += "<li id ="+j+" style='color:green'>"+rzns[j]+"</li></br>";
+			}
+		}
+		parsedReasons += "</ol>";		
+
+        // process reeason text (~) seperated
+        tableData+='<tr><td>'+(i+1)+'.</td><td>'+data.question+'</td><td>'+data.answer+'</td><td>'+parsedReasons+'</td><td>'
+        +data.points+'</td><td>'+data.pointsReceived+'</td><td class="qIdent"><input placeholder="Points" value="'+data.pointsReceived+'" /></br></br><div style="margin-left: -14%;"><textarea placeholder="Comments"></textarea></div></td></tr>';
+        
+        if(i<(jsonData.length)-1){
+          qIds+=data.questionID+"~";
+        }
+        else{
+          qIds+=data.questionID;
+      }
+    }
+    //document.getElementById('test').innerHTML = this.responseText;
+    document.getElementById('json').innerHTML = tableData;
+    }
+  }
+    xmlhttp.send(params);
+}
+
+function GetSelectedStudents(){
+  var checkedBoxes = document.querySelectorAll('input[name=cb]:checked');
+  var cbValues="";
+  for(var i=0; i<checkedBoxes.length; i++){
+    if(i<checkedBoxes.length-1){
+       cbValues+= checkedBoxes[i].value+',';
+    }
+    else{
+      cbValues+= checkedBoxes[i].value;
+    }
+  }
+  return cbValues;
+   //document.getElementById('text').innerHTML = examQs;
+}
+
+function releaseGrade(){
+  //var qIds=GetQuesionIds();
+  var newPoints=getPoints();
+  var comments=getComments();
+  var params="struct=releaseGrade&UCID="+sUsers+"&examQ="+qIds+"&pointsReceived="+newPoints+"&teacherComments="+comments;
+  var xmlhttp = new XMLHttpRequest();
+  xmlhttp.open("POST","curlpost.php", true);
+  xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+  xmlhttp.onreadystatechange = function() {
+    if (this.readyState == 4 && this.status == 200) {
+      var json = this.responseText;
+       //document.getElementById('test').innerHTML = json;
+       window.location.href = '/~hp342/FrontEnd/instructor.html';
+    }
+  };
+  xmlhttp.send(params);
+}
+
+function getPoints() {
+// returns an array for the values of all input elements in the last row of given table
+    var t = document.getElementById('json');
+    console.log(t);
+    var r = t.rows.length-1;
+    //var inputs = r.getElementsByTagName('input');
+      var nPoints="";
+      for (var i=0; i<r; i++){
+        //if(inputs[i].value.length != 0){
+          if(i<r-1){
+             nPoints+= t.rows[i+1].cells[6].getElementsByTagName("input")[0].value+'~';
+          }
+          else{
+            nPoints+= t.rows[i+1].cells[6].getElementsByTagName("input")[0].value;
+          }
+        //}
+      }
+    return nPoints;
+}
+function getComments() {
+// returns an array for the values of all input elements in the last row of given table
+    var t = document.getElementById('json');
+    console.log(t);
+    var r = t.rows.length-1;
+      var nCom="";
+      for (var i=0; i<r; i++){
+          if(i<r-1){
+             nCom+= t.rows[i+1].cells[6].getElementsByTagName("textarea")[0].value+'~';
+          }
+          else{
+            nCom+= t.rows[i+1].cells[6].getElementsByTagName("textarea")[0].value;
+          }
+        //}
+      }
+    return nCom;
+}
+
+</script>
+</html>

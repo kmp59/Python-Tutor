@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html id="in">
+    <head>
+        <title> Py-Intstitute </title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="css/style.css">
+        <style>
+            th, td {
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+            }
+            #body{
+                background-color: #ffffff1a;
+            }
+            h3{
+                color: #000;
+                font-family: 'Merriweather', serif;
+            }
+            p{
+                font-family: 'Merriweather', serif;
+            }
+        </style>
+    </head>
+    <body>
+        <p id="msg"></p>
+        <ul id="navbar">
+              <li><a class="active" href="/~hp342/FrontEnd/student.html">Back to Main Menu</a></li>
+              <li style="float:right"><a href="/~hp342/FrontEnd/login.html" onclick="logOff()">Log Out!</a></li>
+        </ul>
+        <div id=body><br>
+        <h2 style="font-variant:petite-caps">View Grade</h2>
+            <h3 id="theGrade"></h3>
+            <table id="json"><p></p> </table>
+        </div>
+    </body>
+    <script>
+          window.onload = function() { 
+          var tableData="<th></th><th><p>Question</p></th><th><p>Answer</p></th><th><p>Comments</p></th><th><p>Prof. Remarks</p></th><th><p>Max Points</p></th><th><p>Points Received</p></th>";
+          var params="struct=viewGrade&UCID=ap2257";
+          var xmlhttp = new XMLHttpRequest();
+          xmlhttp.open("POST","curlpost.php", true);
+          xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+          xmlhttp.onreadystatechange = function() {
+            if (this.readyState == 4 && this.status == 200) {
+              var json = JSON.parse(this.responseText);
+              for (var i=0; i<json.length; i++) {
+                var data= json[i];
+                document.getElementById('theGrade').innerHTML  = "Result: " + data.grade + " Points";
+                var rzns = data.reasons.split('~');
+                var parsedReasons = "<ol>"
+                for(var j=0; j<rzns.length - 1; j++){
+                    if(rzns[j].includes('incorrect')){
+                        parsedReasons += "<li id ="+j+" style='color:red'>"+rzns[j]+"</li></br>";
+                    }
+                    else if(rzns[j].includes('correct')){
+                        parsedReasons += "<li id ="+j+" style='color:green'>"+rzns[j]+"</li></br>";
+                    }
+                }
+                parsedReasons += "</ol>";
+                tableData+='<tr><td>'+(i+1)+'.</td><td>'+data.question+'</td><td>'+data.answer+'</td><td>'+parsedReasons+'</td><td><b>'+data.teacherComments+'</b></td><td>'
+                +data.points+'</td><td>'+data.pointsReceived+'</td></tr>';
+              }
+                document.getElementById('json').innerHTML = tableData;
+            }
+          };
+          xmlhttp.send(params);
+          if (localStorage.getItem('UCID')) {
+            document.getElementById('msg').innerHTML = "Hello " + localStorage.getItem('UCID')+ "!"; 
+         }
+        }
+    </script>
+</html>

@@ -1,0 +1,291 @@
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="css/style1.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.js"></script>    
+    <script type="text/javascript">
+       var clicks = 0;
+       var sum = 0;
+    function onClick() {
+        clicks += 1;
+        document.getElementById("clicks").innerHTML = clicks;
+    }; 
+        
+    function sum(){
+        var txtFirstNo = document.getElementById('txt0').value;
+        var txtSecondNo = document.getElementById('txt1').value;
+        var txtThirdNo = document.getElementById('txt2').value;
+        var txtFourthNo = document.getElementById('txt3').value;
+        var txtFifthNo = document.getElementById('txt4').value;
+        var txtSixNo = document.getElementById('txt5').value;
+        sum = parseInt(txtFirstNo) + parseInt(txtSecondNo) + parseInt(txtThirdNo) + parseInt(txtFourthNo) + parseInt(txtFifthNo) + parseInt(txtSixNo);
+        document.getElementById("Total").innerHTML = sum;
+        
+    }
+    </script>
+</head>
+<style>
+    #filterQ th, td {
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+    }
+    
+        body{
+          overflow-y: scroll;
+    }
+     body {
+      background: linear-gradient(#33ccff, #ff99cc);
+         min-height: 100%;
+      }
+        html {
+
+            /*height: 100%;*/
+            width:100%;
+        }
+        .panes-container {
+            display: flex;
+            width: 100%;
+            overflow: hidden;
+            grid-template-columns: 720px 15px 720px;
+            /*grid-template-rows: 80px auto 80px; 
+            grid-gap: 15px 10px;*/
+        }
+        .left-pane {
+            width: 50%;
+            background: #fcfcfc00;
+        }
+        .panes-separator {
+            width: 1%;
+            background: #333;
+            position: relative;
+        }
+        .right-pane {
+            flex: auto;
+            background: #fcfcfc00;
+        }
+        
+        .panes-container,
+        .panes-separator,
+        .left-pane,
+        .right-pane {
+            margin: 0px;
+            padding: 3px;
+        }
+        input[type=button] {
+        border-radius: 5px;
+        box-shadow: 0px 0px 2px;
+        
+</style>
+<body>
+<p id="msg"></p>
+<h2 style="font-variant:petite-caps">Create Exam</h2>
+
+<ul>
+  <li><a  href="/~hp342/FrontEnd/addQuestion.html">Add Question</a></li>
+  <li><a class="active" href="/~hp342/FrontEnd/newExam.html">Create Exam</a></li>
+   <li><a href="/~hp342/FrontEnd/grades.html">Grade Exam</a></li>
+  <li style="float:right"><a href="/~hp342/FrontEnd/login.html" onclick="logOff()">Log Out!</a></li>
+</ul>
+<br>
+<label for="examName">Exam Name:</label>&nbsp;<input type="text" id="examName" /> <input type="button" value="Create" onclick="createExam()"/> <br><br>
+    <p>Total Questions: <a id="clicks">0</a> </p>
+   
+<div class=" panes-container">
+  <div class="left-pane" id="left-pane" style="min-width:40%;">
+  <h3>Selected Exam Questions</h3><hr>
+    <table id="questions">
+      <th></th><th>ID</th><th style="min-width:250px;">Questions</th><th>Points</th>
+    </table><br>
+  </div>
+    <div class="panes-separator" id="panes-separator"></div>
+    <div class="right-pane" id="right-pane" style="min-width:60%;">
+      <h4>Question Bank</h4>
+     <label for="search">Filter by:</label>
+     <select id="cat">
+     <option value="" disabled selected>Category</option>
+     <option value="">None</option>
+     <option>Print</option>
+     <option>Loops</option>
+     
+    </select>
+    <select id="diff">
+     <option value="" disabled selected>Difficulty</option>
+     <option value="">None</option>
+     <option>Easy</option>
+     <option>Medium</option>
+     <option>Hard</option>
+    </select>
+    <select id="con">
+     <option value="" disabled selected>Type</option>
+     <option value="">None</option>
+     <option>For</option>
+     <option>Recursion</option>
+     <option>While</option>
+    </select><br><br>
+    
+     <input id="filter" />
+     <input type="button" value="Search" onclick="FilterQuestions()" />
+<hr>
+     <table id="filterQ">
+     </table>
+    </div>
+</div>
+</body>
+<script>
+window.onload = function() { 
+ //tData = "<th>ID</th><th>Questions</th><th>Points</th>";
+  /*var tableData="<th>ID</th><th>Questions</th><th>Points</th>";
+  var params = "struct=showAll";
+  var xmlhttp = new XMLHttpRequest();
+  xmlhttp.open("POST","curlpost.php", true);
+  xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+  xmlhttp.onreadystatechange = function() {
+    if (this.readyState == 4 && this.status == 200) {
+      resp = JSON.parse(this.responseText);
+      for (var i=0; i<resp.length; i++) {
+        var data= resp[i];
+        tableData+='<tr><td><input type="checkbox" name="cb" value='+data.questionID+' />'+data.questionID+'</td><td>'+
+        data.questionText+'</td><td><input name="points"/></td></tr>';
+      }
+       document.getElementById('questions').innerHTML = tableData;
+    }
+  };
+  xmlhttp.send(params);*/
+  
+  getFilterQuestions();
+  
+  if (localStorage.getItem('UCID')) {
+    document.getElementById('msg').innerHTML = "Hello " + localStorage.getItem('UCID')+ "!"; 
+ }
+}
+
+
+function getFilterQuestions(){
+    var tableData="<th>ID</th><th>Questions</th><th>Category</th><th>Difficulty</th>";
+  var params = "struct=showAll";
+  var xmlhttp = new XMLHttpRequest();
+  xmlhttp.open("POST","curlpost.php", true);
+  xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+  xmlhttp.onreadystatechange = function() {
+    if (this.readyState == 4 && this.status == 200) {
+      resp = JSON.parse(this.responseText);
+      for (var i=0; i<resp.length; i++) {
+        var data= resp[i];
+        tableData+='<tr><td>'+data.questionID+'</td><td>'+data.questionText+'</td><td>'+data.questionCategory+'</td><td>'+data.questionDifficulty+'</td><td ><button id='+data.questionID+' type="button" class="clickme" value="Add"  onclick="AddQ(this);onClick();">Add</button></td></tr>';
+      }
+       document.getElementById('filterQ').innerHTML = tableData;
+    }
+  };
+  xmlhttp.send(params);
+}
+var i = 0;
+function AddQ(c){
+  
+  c.style.display = "none";
+  
+  var qEl = c.parentElement.parentElement;
+  var elmts = '<td><input type="checkbox" name="cb" checked value='+qEl.childNodes[0].innerHTML+' />'+'</td><td>'+qEl.childNodes[0].innerHTML+'</td>';
+  elmts +='<td style="min-width:250px;">'+qEl.childNodes[1].innerHTML+'</td>';
+  //tData="<th></th><th>ID</th><th>Questions</th><th>Points</th>";
+  //tData = '<tr>'+elmts+'<td><input name="points"/></td></tr>';
+  document.getElementById('questions').innerHTML += '<tr>'+elmts+'<td><input type=\'text\' id=\'txt'+i+'\' name=\'points\' onblur=\'sum()\'/></td></tr>';
+    i += 1;
+}
+//var result = 0;
+//function sum() {
+//    
+//    var txtFirstNo = document.getElementById('txtFirstNo').value;
+//
+//    result += parseInt(txtFirstNo);
+//    
+//    
+//    if (!isNaN(result)) {
+//        document.getElementById("clickPoints").innerHTML = result;
+//    }
+//}
+    
+function FilterQuestions(){
+  var key = document.getElementById('filter').value
+  var cat = document.getElementById('cat').value
+  var diff = document.getElementById('diff').value
+  var con = document.getElementById('con').value
+  
+  var params="cat="+cat+"&diff="+diff+"&con="+con+"&key="+key+"&struct=filter";
+  var tableData="<th>ID</th><th>Questions</th><th>Category</th><th>Difficulty</th>";
+  
+  var xmlhttp = new XMLHttpRequest();
+  xmlhttp.open("POST","curlpost.php", true);
+  xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+  xmlhttp.onreadystatechange = function() {
+    if (this.readyState == 4 && this.status == 200) {
+      resp = JSON.parse(this.responseText);
+      for (var i=0; i<resp.length; i++) {
+        var data= resp[i];
+        tableData+='<tr><td>'+data.id+'</td><td>'+data.text+'</td><td>'+data.category+'</td><td>'+data.difficulty+'</td><td><input id='+data.questionID+' type="button" value="Add" onclick="AddQ(this); clickCounter();" /></td></tr>';
+      }
+       document.getElementById('filterQ').innerHTML = tableData;
+    }
+    else{
+       document.getElementById('filterQ').innerHTML = "No questions match specified criteria.";
+    }
+  };
+  xmlhttp.send(params);
+}
+
+function createExam(){
+  // grab checked checkboxes
+  var examQ=GetSelectedQuestions();
+  var points=GetQuestionPointVal();
+  var examName=document.getElementById('examName').value;
+  //set request params
+  var params="examQ="+examQ+"&examName="+examName+"&points="+points+"&struct=makeExam";
+
+   var xmlhttp = new XMLHttpRequest();
+  xmlhttp.open("POST","curlpost.php", true);
+  xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+  xmlhttp.onreadystatechange = function() {
+  if (this.readyState == 4 && this.status == 200) {
+    //var resp = xmlhttp.responseText
+    //document.getElementById('text').innerHTML = resp;
+    //alert(examName+' exam created!');
+    window.location.pathname = '/~hp342/FrontEnd/instructor.html';
+  }
+  };
+  xmlhttp.send(params);
+}
+
+function GetQuestionPointVal(){
+    var textboxes = document.querySelectorAll('input[name=points]');
+    var qPoints="";
+    for(var i=0; i<textboxes.length; i++){
+      if(textboxes[i].value.length != 0){
+        if(i<textboxes.length-1){
+          qPoints+= textboxes[i].value+'~';
+        }
+        else{
+          qPoints+= textboxes[i].value;
+        }
+      }
+    }
+    //document.getElementById('text').innerHTML = qPoints;
+    return qPoints;
+}
+
+function GetSelectedQuestions(){
+  var checkedBoxes = document.querySelectorAll('input[name=cb]:checked');
+  var examQs="";
+  for(var i=0; i<checkedBoxes.length; i++){
+    
+    if(i<checkedBoxes.length-1){
+    examQs+= checkedBoxes[i].value+',';
+    }
+    else{
+    examQs+= checkedBoxes[i].value;
+    }
+  }
+  //document.getElementById('test').innerHTML = examQs;
+  return examQs;
+
+}
+</script>
+</html>
